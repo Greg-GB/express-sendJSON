@@ -1,5 +1,10 @@
 # Express sendJSON response middleware
 
+### Installation
+```
+npm install express-sendjson
+```
+
 This is a simple express middleware that wraps the functionality of res.status(#).json(data) with some additional metadata by adding sendJSON to res.
 
 Here are the default settings.
@@ -28,7 +33,7 @@ This is a bare minimum example that will use the default settings.
 
 ### Setup
 ```js
-var sendJSON = require('sendJSON');
+var sendJSON = require('express-sendjson');
 var express = require('express')
 var app = express()
 
