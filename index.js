@@ -1,8 +1,13 @@
 var utils = require('./lib/helperUtils');
 
 function getOpts(middlewareOpts, responseOpts) {
-    if (typeof responseOpts.code !== 'object') {
-        responseOpts = {code: {value: Number(responseOpts.code)}};
+    if (typeof responseOpts.code !== 'object' && responseOpts.code !== undefined && responseOpts.code !== null) {
+        responseOpts = {
+            code: {
+                enabled: true,
+                value: Number(responseOpts.code)
+            }
+        };
     }
 
     var defaultOptions = {

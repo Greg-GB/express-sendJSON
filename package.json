@@ -22,6 +22,7 @@
     "express",
     "express-send",
     "express-sendJSON",
+    "express-responseJSON",
     "sendJSON"
   ],
   "files": [
