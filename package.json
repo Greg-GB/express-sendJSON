@@ -1,0 +1,31 @@
+{
+  "name": "express-sendjson",
+  "version": "1.0.0",
+  "author": "Greg Byram <greg@gregbyram.com>",
+  "description": "A simple express middleware that wraps the functionality of res.status(#).json(data) with some additional information by adding sendJSON to res.",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha test"
+  },
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "mocha": "^2.5.3",
+    "should": "^11.1.0"
+  },
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "keywords": [
+    "express",
+    "express-send",
+    "express-sendJSON",
+    "sendJSON"
+  ],
+  "files": [
+    "LICENSE",
+    "Readme.md",
+    "index.js",
+    "lib/"
+  ]
+}
