@@ -5,7 +5,7 @@
 npm install express-sendjson
 ```
 
-This is a simple express middleware that wraps the functionality of res.status(#).json(data) with some additional metadata by adding sendJSON to res.
+This is a simple express middleware that wraps the functionality of res.status(#).json(data) with some additional metadata by adding sendJSON to res. There are a wide range of properties that could be added in the future.
 
 Here are the default settings.
 ```json
@@ -74,7 +74,7 @@ res.sendJSON([{message: "hello"}, {message: "there"}]);
 ```
 
 ## Options
-This middleware allows for properties to be toggled on and off. By default only code and count are enabled. Most properties can be toggled through the initial config besides code this property is configured through an individual response if needed. By default all responses are 200 unless code is declared on the response.
+This middleware allows for properties to be toggled on and off. By default only code and count are enabled. All properties can be toggled through the initial config or through individual responses. By default all responses are 200 unless code is declared on the response.
 
 ### apiVersion
 ```js
@@ -99,6 +99,10 @@ The res.sendJSON output appear as so.
 
 ### code
 ```js
+res.sendJSON({message:"Entity created."}, {code: {enabled: true, value: 201}})
+```
+or shorthand if already enabled
+```js
 res.sendJSON({message:"Entity created."}, {code: 201})
 ```
 
@@ -111,6 +115,11 @@ The res.sendJSON output appear as so with the defaults.
     }
 }
 ```
+
+## Future Enhancements
+* Response Time
+* Self-Uri's
+* Possibly res.sendError or another module for that
 
 ### Feedback
 Feel free to open bugs or file enhancement requests. I'm always open to improvements. Thanks!
