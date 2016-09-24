@@ -74,7 +74,7 @@ function sendJSON(middlewareOpts) {
             var payload = generatePayload(data, options);
 
             return res
-                .status(payload.statusCode)
+                .status(options.statusCode.value)
                 .json(payload);
         };
         next();

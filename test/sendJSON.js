@@ -133,5 +133,15 @@ describe('sendJSON', function() {
             var res = app.res.sendJSON(new Error());
             res.body.should.have.property('statusCode', 500);
         });
+
+        it('Should have not have statusCode', function() {
+            app.use(sendJSON({
+                statusCode: {
+                    enabled: false
+                }
+            }));
+            var res = app.res.sendJSON({});
+            res.body.should.not.have.property('statusCode');
+        });
     });
 });
