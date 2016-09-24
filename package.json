@@ -1,6 +1,6 @@
 {
   "name": "express-sendjson",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "author": "Greg Byram <greg@gregbyram.com>",
   "description": "A simple express middleware that wraps the functionality of res.status(#).json(data) with some additional information by adding sendJSON to res.",
   "main": "index.js",
