@@ -28,6 +28,7 @@
   "files": [
     "LICENSE",
     "Readme.md",
+    "CHANGELOG.md",
     "index.js",
     "lib/"
   ]

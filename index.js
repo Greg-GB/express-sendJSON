@@ -1,15 +1,6 @@
 var utils = require('./lib/helperUtils');
 
-function getOpts(middlewareOpts, responseOpts) {
-    if (typeof responseOpts.code !== 'object' && responseOpts.code !== undefined && responseOpts.code !== null) {
-        responseOpts = {
-            code: {
-                enabled: true,
-                value: Number(responseOpts.code)
-            }
-        };
-    }
-
+function getOpts(middlewareOpts, responseOpts, data) {
     var defaultOptions = {
         apiVersion: {
             enabled: false,
@@ -17,32 +8,56 @@ function getOpts(middlewareOpts, responseOpts) {
         },
         status: {
             enabled: false,
-            value: "success"
+            value: (data instanceof Error) ? "error" : "success"
         },
         count: {
             enabled: true
         },
-        code: {
+        statusCode: {
             enabled: true,
-            value: 200
+            value: (data instanceof Error) ? (data.statusCode || 500) : 200
         }
     };
 
     return utils.assign({}, defaultOptions, middlewareOpts, responseOpts);
 }
 
-function generateSuccessPayload(data, options) {
+function generatePayload(data, options) {
     if (data === undefined || data === null || typeof data !== 'object') {
         throw new TypeError('Data is not an object.');
     }
 
-    return {
-        apiVersion: options.apiVersion.enabled ? options.apiVersion.value : undefined,
-        count: options.count.enabled && (Array.isArray(data)) ? data.length : undefined,
-        code: options.code.enabled ? options.code.value : undefined,
-        status: options.status.enabled ? options.status.value : undefined,
-        data: data
-    }
+    var payload = {};
+    var payloadModel = {
+        apiVersion: {
+            check: !!options.apiVersion.enabled,
+            value: options.apiVersion.value
+        },
+        count: {
+            check: options.count.enabled && (Array.isArray(data)),
+            value: data.length
+        },
+        statusCode: {
+            check: !!options.statusCode.enabled,
+            value: options.statusCode.value
+        },
+        status: {
+            check: !!options.status.enabled,
+            value: options.status.value
+        },
+        data: {
+            check: !!data,
+            value: data
+        }
+    };
+
+    Object.keys(payloadModel).forEach(function(k) {
+        if (payloadModel[k].check) {
+            payload[k] = payloadModel[k].value;
+        }
+    });
+
+    return payload;
 }
 
 function sendJSON(middlewareOpts) {
@@ -54,11 +69,13 @@ function sendJSON(middlewareOpts) {
     return function(req, res, next) {
         res.sendJSON = function(data, responseOpts) {
             responseOpts = responseOpts || {};
-            var options = getOpts(middlewareOpts, responseOpts);
+            data = data || {};
+            var options = getOpts(middlewareOpts, responseOpts, data);
+            var payload = generatePayload(data, options);
 
             return res
-                .status(options.code.value)
-                .json(generateSuccessPayload(data, options));
+                .status(payload.statusCode)
+                .json(payload);
         };
         next();
     }

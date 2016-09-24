@@ -29,10 +29,10 @@ describe('sendJSON', function() {
 
     describe('Middleware defaults', function() {
 
-        it('Should have code of 200', function() {
+        it('Should have statusCode of 200', function() {
             app.use(sendJSON({}));
             var res = app.res.sendJSON({});
-            res.body.should.have.property('code', 200);
+            res.body.should.have.property('statusCode', 200);
         });
 
         it('Should have data', function() {
@@ -50,7 +50,7 @@ describe('sendJSON', function() {
         it('Should have not have count when data is not an array', function() {
             app.use(sendJSON({}));
             var res = app.res.sendJSON({});
-            res.body.should.have.property('count', undefined);
+            res.body.should.not.have.property('count');
         });
 
         it('Should not throw an error without options', function() {
@@ -76,6 +76,16 @@ describe('sendJSON', function() {
             }));
             var res = app.res.sendJSON([{}]);
             res.body.should.have.property('status', "success");
+        });
+
+        it('Should have status of default value error for Error', function() {
+            app.use(sendJSON({
+                status: {
+                    enabled: true
+                }
+            }));
+            var res = app.res.sendJSON(new Error());
+            res.body.should.have.property('status', "error");
         });
 
         it('Should have status of passed', function() {
@@ -108,6 +118,20 @@ describe('sendJSON', function() {
             }));
             var res = app.res.sendJSON([{}]);
             res.body.should.have.property('apiVersion', "2.0.0");
+        });
+
+        it('Should have statusCode from Error', function() {
+            app.use(sendJSON());
+            var badRequestError = new Error();
+            badRequestError.statusCode = 400;
+            var res = app.res.sendJSON(badRequestError);
+            res.body.should.have.property('statusCode', 400);
+        });
+
+        it('Should have statusCode 500 if Error does not have statusCode', function() {
+            app.use(sendJSON());
+            var res = app.res.sendJSON(new Error());
+            res.body.should.have.property('statusCode', 500);
         });
     });
 });
