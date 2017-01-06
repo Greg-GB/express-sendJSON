@@ -1,3 +1,5 @@
+'use strict';
+
 var sendJSON = require('../index');
 var should = require('should');
 var expressMock = function () {
@@ -29,22 +31,10 @@ describe('sendJSON', function() {
 
     describe('Middleware defaults', function() {
 
-        it('Should have statusCode of 200', function() {
-            app.use(sendJSON({}));
-            var res = app.res.sendJSON({});
-            res.body.should.have.property('statusCode', 200);
-        });
-
         it('Should have data', function() {
             app.use(sendJSON({}));
             var res = app.res.sendJSON({});
             res.body.should.have.property('data', {});
-        });
-
-        it('Should have count when data is an array', function() {
-            app.use(sendJSON({}));
-            var res = app.res.sendJSON([{}]);
-            res.body.should.have.property('count', 1);
         });
 
         it('Should have not have count when data is not an array', function() {
@@ -62,11 +52,47 @@ describe('sendJSON', function() {
         it('Should throw an error when options is not an object', function() {
             should(function(){
                 return app.use(sendJSON('asdf'))
-            }).throw('Options is not an object.');
+            }).throw('Options must be an object.');
         });
     });
 
     describe('Middleware override options', function() {
+
+        it('Should have statusCode of 200', function() {
+            app.use(sendJSON({
+                statusCode: {
+                    enabled: true
+                }
+            }));
+            var res = app.res.sendJSON({});
+            res.body.should.have.property('statusCode', 200);
+        });
+
+        it('Should have statusCode of 201', function() {
+            app.use(sendJSON({}));
+            var res = app.res.sendJSON({}, 201);
+            res.body.should.have.property('statusCode', 201);
+        });
+
+        it('Should wrap response in res', function() {
+            app.use(sendJSON({
+                responseProperty: {
+                    value: "res"
+                }
+            }));
+            var res = app.res.sendJSON();
+            res.body.should.have.property('res', {});
+        });
+
+        it('Should have count when data is an array', function() {
+            app.use(sendJSON({
+                count: {
+                    enabled: true
+                }
+            }));
+            var res = app.res.sendJSON([{}]);
+            res.body.should.have.property('count', 1);
+        });
 
         it('Should have status of default value success', function() {
             app.use(sendJSON({
@@ -92,11 +118,13 @@ describe('sendJSON', function() {
             app.use(sendJSON({
                 status: {
                     enabled: true,
-                    value: "passed"
+                    value: function(data) {
+                        return "asdf";
+                    }
                 }
             }));
             var res = app.res.sendJSON([{}]);
-            res.body.should.have.property('status', "passed");
+            res.body.should.have.property('status', "asdf");
         });
 
         it('Should have apiVersion of default value 1.0.0', function() {
@@ -121,27 +149,23 @@ describe('sendJSON', function() {
         });
 
         it('Should have statusCode from Error', function() {
-            app.use(sendJSON());
-            var badRequestError = new Error();
-            badRequestError.statusCode = 400;
-            var res = app.res.sendJSON(badRequestError);
+            app.use(sendJSON({
+                statusCode: {
+                    enabled: true
+                }
+            }));
+            var res = app.res.sendJSON(new Error(), 400);
             res.body.should.have.property('statusCode', 400);
         });
 
         it('Should have statusCode 500 if Error does not have statusCode', function() {
-            app.use(sendJSON());
-            var res = app.res.sendJSON(new Error());
-            res.body.should.have.property('statusCode', 500);
-        });
-
-        it('Should have not have statusCode', function() {
             app.use(sendJSON({
                 statusCode: {
-                    enabled: false
+                    enabled: true
                 }
             }));
-            var res = app.res.sendJSON({});
-            res.body.should.not.have.property('statusCode');
+            var res = app.res.sendJSON(new Error());
+            res.body.should.have.property('statusCode', 500);
         });
     });
 });

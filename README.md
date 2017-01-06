@@ -1,52 +1,100 @@
 # express-sendjson
 
-## Installation
 ```
 npm install express-sendjson
 ```
 
-Express-sendjson is a simple express response middleware that wraps res.status(#).json({}) with some additional metadata about the response or error by adding sendJSON to the response object.
-
-Here are the default settings.
-```json
-{
-    "apiVersion": {
-        "enabled": false,
-        "value": "1.0.0"
-    },
-    "status": {
-        "enabled": false,
-        "value": "success" ||  "error"
-    },
-    "count": {
-        "enabled": true
-    },
-    "statusCode": {
-        "enabled": true,
-        "value": 200 || 500
-    }
-}
-```
+Express-sendjson is a simple express middleware that wraps the res.status(#).json({}) functionality into a single function with additional metadata about the response. 
+By default the middleware wraps the json response under a root level property on the response called "data" which is configurable. 
+The other root level metadata properties about the json response are disabled by default. 
+If you wish to enable any of the metadata properties on the json response see the examples below.
 
 ## Setup
+Default settings
 ```js
 var sendJSON = require('express-sendjson');
-var express = require('express')
-var app = express()
+var app = require('express')()
+app.use(sendJSON(
+    {
+        "responseProperty": {
+            "value": "data"
+        },
+        "apiVersion": {
+            "enabled": false,
+            "value": "1.0.0"
+        },
+        "status": {
+            "enabled": false,
+            "value": function(data) {
+                  return (data instanceof Error) ? "error" : "success";
+              }
+        },
+        "count": {
+            "enabled": false
+        },
+        "statusCode": {
+            "enabled": false,
+            "value": function(data) {
+                return (data instanceof Error) ? 500 : 200
+            }
+        }
+    }
+));
+app.listen(3000)
+```
 
-app.use(sendJSON());
-
+Overriding default settings
+```js
+var sendJSON = require('express-sendjson');
+var app = require('express')()
+app.use(sendJSON(
+    {
+        "responseProperty": {
+            "value": "result"
+        },
+        "apiVersion": {
+            "enabled": true,
+            "value": "1.2.3"
+        },
+        "status": {
+            "enabled": true,
+            "value": function(data) {
+                // logic Here
+                // return some status message
+            }
+        },
+        "count": {
+            "enabled": true
+        },
+        "statusCode": {
+            "enabled": true,
+            "value": function(data) {
+                // logic Here
+                // return a status code
+            }
+        }
+    }
+));
 app.listen(3000)
 ```
 
 ## Examples
-This is a bare minimum example that will use the default settings.
 
-### Object
+#### Object
+```js
+app.use(sendJSON(
+    {
+       "statusCode": {
+            "enabled": true
+        }
+    }
+));
+```
+Usage
 ```js
 res.sendJSON({message: "hello"});
 ```
-
+Response
 ```json
 {
     "statusCode": 200,
@@ -56,18 +104,27 @@ res.sendJSON({message: "hello"});
 }
 ```
 
-### Array
+#### Array
+```js
+app.use(sendJSON(
+    {
+        "count": {
+            "enabled": true
+        },
+        "statusCode": {
+            "enabled": true
+        }
+    }
+));
+```
+Usage
 ```js
 res.sendJSON([
-    {
-        message: "hello"
-    },
-    {
-        message: "there"
-    }
+    {message: "hello"},
+    {message: "there"}
 ]);
 ```
-
+Response
 ```json
 {
     "count": 2,
@@ -84,12 +141,23 @@ res.sendJSON([
 ```
 
 ### Error
-
-In this example a generic error without statusCode which defaults to 500.
+```js
+app.use(sendJSON(
+    {
+        "count": {
+            "enabled": true
+        },
+        "statusCode": {
+            "enabled": true
+        }
+    }
+));
+```
+Usage
 ```js
 res.sendJSON(new Error('Oh Noes!'))
 ```
-
+Response
 ```json
 {
     "statusCode": 500,
@@ -99,59 +167,20 @@ res.sendJSON(new Error('Oh Noes!'))
 }
 ```
 
-In this example an error with statusCode overrides the default 500.
-```js
-var error = new Error('Oh Noes!');
-error.statusCode = 400;
-res.sendJSON(error)
-```
+#### Status Code
 
+Usage
+```js
+res.sendJSON({message: "Entity created."}, 201)
+```
+Response
 ```json
 {
-    "statusCode": 400,
+    "statusCode": 201,
     "data": {
-      "message": "Oh Noes!",
-      "statusCode": 400
+      "message": "Entity created."
     }
 }
-```
-
-## Settings
-The express-sendjson response middleware allows for properties to be toggled on and off. All properties can be toggled and set through the initial middleware settings or through individual response settings. By default all success responses are 200 and error responses are 500 unless specified.
-
-### Default Middlware Settings
-```js
-app.use(sendJSON({
-    "apiVersion": {
-        "enabled": true,
-        "value": "1.2.3"
-    }
-}));
-```
-
-The res.sendJSON output appear as so.
-```json
-{
-    "apiVersion": "1.2.3",
-    "statusCode": 200,
-    "data": {
-      "message": "hello"
-    }
-}
-```
-
-### Individual Response Settings
-```js
-res.sendJSON(
-    {
-        message: "Entity created."
-    },
-    {
-        statusCode: {
-            value: 201
-        }
-    }
-)
 ```
 
 ## Future Enhancements

@@ -1,3 +1,7 @@
+### v2.0.1 (2017-01-05)
+
+Breaking change from 2.x to 3.x. New customizations and more flexibility on return values.
+
 ### v2.0.1 (2016-09-24)
 
 Fixed minor bug with statusCode.
